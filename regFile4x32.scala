@@ -8,6 +8,10 @@ import chisel3.util._
   write enable is controlled by the LSB of the incrementer (cnt[0])  from the EO module
 */
 
+// TODO : DUPLICATE EVERYTHING TO SUPPORT 32.W 16.BP FIXED POINT
+// TODO : DON'T FORGET TO INCLUDE chisel3.experimental._ or whatever
+// TODO : Going to have to have 4 outputs, 4 inputs etc
+
 class regFile4x32 extends Module {
   val io = IO(new Bundle {
     val wraddr = Input(UInt(2.W))

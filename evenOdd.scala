@@ -3,6 +3,8 @@ package fft
 import chisel3._
 import chisel3.util._
 
+// TODO : CHANGE TO SUPPORT COMPLEX NUMBERS via 2 32.W 16.BP FIXED POINT NUMBERS -- Currently working with binary values
+
 
 class evenOdd extends Module {
   val io = IO(new Bundle {
