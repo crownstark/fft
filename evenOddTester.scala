@@ -5,7 +5,7 @@ import chisel3.util._
 import chisel3.iotesters.PeekPokeTester
 
 class evenOddTester(dut: evenOdd) extends PeekPokeTester(dut){
-	// for stage 0 -- should output 0 and 4 from even and 1 and 5 from odd at last it
+	// for stage 0 -- should output 0 and 4 from even and 1 and 5 from odd at last it -- WORKING
 	poke(dut.io.stage_count, 0.U)
 	println("STAGE 0 TEST")
 	for (i <- 0 to 7){
@@ -18,7 +18,7 @@ class evenOddTester(dut: evenOdd) extends PeekPokeTester(dut){
 		step(1)
 	}
 	
-	// for stage 1 -- should output 0 and 1 from even and 0 and 1 from odd??? maybe wrong
+	// for stage 1 -- should output 0 and 1 from even and 0 and 1 from odd -- WORKING
 	poke(dut.io.stage_count, 1.U)
 	println("STAGE 1 TEST")
 	for (i <- 0 to 7){
@@ -31,7 +31,7 @@ class evenOddTester(dut: evenOdd) extends PeekPokeTester(dut){
 		step(1)
 	}
 	
-	// for stage 2 -- should output 0 and 4 from even and 1 and 5 from odd again??? also maybe wrong
+	// for stage 2 -- should output 0 and 4 from even and 1 and 5 from odd again -- WORKING
 	println("STAGE 2 TEST")
 	poke(dut.io.stage_count, 2.U)
 	for (i <- 0 to 7){
