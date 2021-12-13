@@ -56,7 +56,7 @@ class RF_4x32 extends Module {
    
 }
 
-class incRedo extends Module {
+/*class incRedo extends Module {
   val io = IO(new Bundle {
     val count_en = Input(UInt(1.W))
     val eo_wren = Output(UInt(1.W)) // write enable to even-odd reg
@@ -88,7 +88,7 @@ class EO extends Module {
     //val eo_wraddr = Input(UInt(2.W))
     val stage_counter = Input(UInt(2.W)) // control sig
     val to_evenOdd = Input(UInt(32.W))
-    val out_toBF = Output(Vec(8, UInt(32.W))
+    val out_toBF = Output(Vec(8, UInt(32.W)))
     val outen_toBF = Input(UInt(1.W)) // control sig
     val mainReg_rdaddr = Output(UInt(3.W))
     val count_done = Output(UInt(1.W))
@@ -109,8 +109,8 @@ class EO extends Module {
   io.mainReg_rdaddr := inc.io.mainReg_rdaddr
   io.count_done := inc.io.count_done
   
-  eRF.io.wr_en := ~inc.io.wren
-  oRF.io.wr_en := inc.io.wren
+  eRF.io.wr_en := ~inc.io.eo_wren
+  oRF.io.wr_en := inc.io.eo_wren
   
   eRF.io.wr_addr := inc.io.eo_wraddr
   oRF.io.wr_addr := inc.io.eo_wraddr
@@ -151,10 +151,11 @@ class EO extends Module {
         oRF.io.rdaddr(3) := 3.U
       }
       
+    }
   }
 }
 
-class BF_blocks extends Module {
+/*class BF_blocks extends Module {
   val io = IO(new Bundle {
    
   })
@@ -166,7 +167,7 @@ class BF_blocks extends Module {
   val BF2 = Module(new Butterfly())
   val BF3 = Module(new Butterfly())
   
-}
+}*/
 
 
 
@@ -285,4 +286,4 @@ class BF_blocks extends Module {
     val out_even = Output(Vec(4, UInt(32.W)))
     val out_odd = Output(Vec(4, UInt(32.W)))
   })*/  
-}*/
+}*/*/
