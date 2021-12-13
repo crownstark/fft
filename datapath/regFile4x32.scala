@@ -19,22 +19,22 @@ class regFile4x32 extends Module {
     val rdaddr1 = Input(UInt(2.W))
     val rdaddr2 = Input(UInt(2.W))
     val rdaddr3 = Input(UInt(2.W))
-    val in = Input(UInt(32.W))
-    val out_en = Input(UInt(1.W))
+    val in = Input(SInt(32.W))
+    val out_en = Input(UInt(1.W)) // rdy_forBF -- meaning lines are sorted and ready to be sent to the BF
     val wr_en = Input(UInt(1.W))
-    val out0 = Output(UInt(32.W))
-    val out1 = Output(UInt(32.W))
-    val out2 = Output(UInt(32.W))
-    val out3 = Output(UInt(32.W))
+    val out0 = Output(SInt(32.W))
+    val out1 = Output(SInt(32.W))
+    val out2 = Output(SInt(32.W))
+    val out3 = Output(SInt(32.W))
   })
-  io.out0 := 0.U
-  io.out1 := 0.U
-  io.out2 := 0.U
-  io.out3 := 0.U
-  val reg0 = RegInit(0.U(32.W))
-  val reg1 = RegInit(0.U(32.W))
-  val reg2 = RegInit(0.U(32.W))
-  val reg3 = RegInit(0.U(32.W))
+  io.out0 := 0.S
+  io.out1 := 0.S
+  io.out2 := 0.S
+  io.out3 := 0.S
+  val reg0 = RegInit(0.S(32.W))
+  val reg1 = RegInit(0.S(32.W))
+  val reg2 = RegInit(0.S(32.W))
+  val reg3 = RegInit(0.S(32.W))
   when(io.wr_en.asBool){
     switch(io.wraddr){
        is(0.U) {reg0 := io.in}
