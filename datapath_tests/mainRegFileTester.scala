@@ -12,9 +12,16 @@ class mainRegFileTester(dut: mainRegFile) extends PeekPokeTester(dut){
   }
   poke(dut.io.demux_sel, 1.U)
   step(1)
-  
+  println("SEL = 1: FROM BUTTERFLY")
   for (i <- 0 to 7){
-     //poke(dut.io.mainReg_rdaddr, i.U)
+     
+     println("to_evenOdd: " + peek(dut.io.to_evenOdd(i)).toString)
+     step(1)
+  }
+  poke(dut.io.demux_sel, 0.U)
+  step(1)
+  println("SEL = 0: FROM ROM")
+  for (i <- 0 to 7){
      println("to_evenOdd: " + peek(dut.io.to_evenOdd(i)).toString)
      step(1)
   }
