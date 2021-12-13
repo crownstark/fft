@@ -134,5 +134,112 @@ class regFile4x32_FP extends Module {
 // TODO: EVEN/ODD SPLIT FUNCTIONALITY AND TEST
 // TODO: BUTTERFLY BLOCKS WITH FP AND TEST
 // TODO: CONNECT ALL AND TEST
+
+
+// single butterfly block with fixedpoint
+class BF_FP extends Module {
+  val io = IO(new Bundle {
+    val a = Input(FixedPoint(32.W, 16.BP))
+    val b = Input(FixedPoint(32.W, 16.BP))
+    val wn = Input(FixedPoint(32.W, 16.BP))
+    val out0 = Output(FixedPoint(32.W, 16.BP))
+    val out1 = Output(FixedPoint(32.W, 16.BP))
+    val out_en = Input(UInt(1.W))
+  })
+  
+  io.out0 := 0.F(32.W, 16.BP)
+  io.out1 := 0.F(32.W, 16.BP)
+  
+  when(io.out_en.asBool){
+    io.out0 := io.a + io.b*io.wn
+    io.out1 := io.a - io.b*io.wn
+  }
+}
+
+class twiddleROM_FP extends Module {
+  val io = IO(new Bundle {
+    val wn = Output(Vec(4, FixedPoint(32.W, 16.BP)))
+    val stage_counter = Input(UInt(2.W))
+  }) // maybe out_en also??
+  
+  for (i <- 0 until 4){
+    io.wn(0) = 0.F(32.W, 16.BP)
+  }
+  
+  // random values, will be changed to be real values later on
+  val wn0 = (1.1).F(32.W, 16.BP)
+  val wn1 = (2.2).F(32.W, 16.BP)
+  val wn2 = (3.3).F(32.W, 16.BP)
+  val wn3 = (4.4).F(32.W, 16.BP)
+  
+  switch(io.stage_counter){
+    is(0.U){
+      for(i <- 0 until 4){
+        io.wn(i) := 1.F(32.W, 16.BP)
+      }
+    }
+    is(1.U){
+      io.wn(0) := wn0
+      io.wn(1) := wn2
+      io.wn(2) := wn0
+      io.wn(3) := wn2
+    }
+    is(2.U){
+      io.wn(0) := wn0
+      io.wn(1) := wn1
+      io.wn(2) := wn2
+      io.wn(3) := wn3
+    }
+  }  
+}
+  
+// TODO: VECTOR OF MODULES NOT WORKING
+class BF_blocks_FP extends Module {
+  val io = IO(new Bundle {
+    val in = Input(Vec(8, FixedPoint(32.W, 16.BP)))
+    val out = Output(Vec(8, FixedPoint(32.W, 16.BP)))
+    val wn = Input(FixedPoint(32.W, 16.BP))
+    val stage_counter = Input(UInt(2.W))
+    val out_en = Input(UInt(1.W))
+  })
+  
+  for (i <- 0 until 8){
+    io.out(i) := 0.F(32.W, 16.BP)
+  }
+  
+  val bf = Vec(4, Module(new BF_FP()))
+  
+  val twid = Module(new twiddleROM_FP())
+  twid.io.stage_counter := io.stage_counter
+  
+  bf(0).io.a := io.in(0)
+  bf(0).io.b := io.in(1)
+  bf(0).io.wn := twid.io.wn(0)
+  bf(0).io.out_en := io.out_en
+  io.out(0) := bf(0).io.out0
+  io.out(1) := bf(0).io.out1
+  
+  bf(1).io.a := io.in(2)
+  bf(1).io.b := io.in(3)
+  bf(1).io.wn := twid.io.wn(1)
+  bf(1).io.out_en := io.out_en
+  io.out(2) := bf(1).io.out0
+  io.out(3) := bf(1).io.out1
+  
+  bf(2).io.a := io.in(4)
+  bf(2).io.b := io.in(5)
+  bf(2).io.wn := twid.io.wn(2)
+  bf(2).io.out_en := io.out_en
+  io.out(4) := bf(2).io.out0
+  io.out(5) := bf(2).io.out1
+  
+  bf(3).io.a := io.in(6)
+  bf(3).io.b := io.in(7)
+  bf(3).io.wn := twid.io.wn(3)
+  bf(3).io.out_en := io.out_en
+  io.out(6) := bf(3).io.out0
+  io.out(7) := bf(3).io.out1
+}
+  
     
     
