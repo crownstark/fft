@@ -132,7 +132,6 @@ class regFile4x32_FP extends Module {
 
 // 12/13/2021 2:49 AM
 // TODO: EVEN/ODD SPLIT FUNCTIONALITY AND TEST
-// TODO: BUTTERFLY BLOCKS WITH FP AND TEST
 // TODO: CONNECT ALL AND TEST
 
 
@@ -163,7 +162,7 @@ class twiddleROM_FP extends Module {
   }) // maybe out_en also??
   
   for (i <- 0 until 4){
-    io.wn(0) = 0.F(32.W, 16.BP)
+    io.wn(i) := 0.F(32.W, 16.BP)
   }
   
   // random values, will be changed to be real values later on
@@ -206,40 +205,94 @@ class BF_blocks_FP extends Module {
   for (i <- 0 until 8){
     io.out(i) := 0.F(32.W, 16.BP)
   }
+
   
-  val bf = Vec(4, Module(new BF_FP()))
+  val bf0 = Module(new BF_FP())
+  val bf1 = Module(new BF_FP())
+  val bf2 = Module(new BF_FP())
+  val bf3 = Module(new BF_FP())
   
   val twid = Module(new twiddleROM_FP())
   twid.io.stage_counter := io.stage_counter
   
-  bf(0).io.a := io.in(0)
-  bf(0).io.b := io.in(1)
-  bf(0).io.wn := twid.io.wn(0)
-  bf(0).io.out_en := io.out_en
-  io.out(0) := bf(0).io.out0
-  io.out(1) := bf(0).io.out1
+  bf0.io.a := io.in(0)
+  bf0.io.b := io.in(1)
+  bf0.io.wn := twid.io.wn(0)
+  bf0.io.out_en := io.out_en
+  io.out(0) := bf0.io.out0
+  io.out(1) := bf0.io.out1
   
-  bf(1).io.a := io.in(2)
-  bf(1).io.b := io.in(3)
-  bf(1).io.wn := twid.io.wn(1)
-  bf(1).io.out_en := io.out_en
-  io.out(2) := bf(1).io.out0
-  io.out(3) := bf(1).io.out1
+  bf1.io.a := io.in(2)
+  bf1.io.b := io.in(3)
+  bf1.io.wn := twid.io.wn(1)
+  bf1.io.out_en := io.out_en
+  io.out(2) := bf1.io.out0
+  io.out(3) := bf1.io.out1
   
-  bf(2).io.a := io.in(4)
-  bf(2).io.b := io.in(5)
-  bf(2).io.wn := twid.io.wn(2)
-  bf(2).io.out_en := io.out_en
-  io.out(4) := bf(2).io.out0
-  io.out(5) := bf(2).io.out1
+  bf2.io.a := io.in(4)
+  bf2.io.b := io.in(5)
+  bf2.io.wn := twid.io.wn(2)
+  bf2.io.out_en := io.out_en
+  io.out(4) := bf2.io.out0
+  io.out(5) := bf2.io.out1
   
-  bf(3).io.a := io.in(6)
-  bf(3).io.b := io.in(7)
-  bf(3).io.wn := twid.io.wn(3)
-  bf(3).io.out_en := io.out_en
-  io.out(6) := bf(3).io.out0
-  io.out(7) := bf(3).io.out1
+  bf3.io.a := io.in(6)
+  bf3.io.b := io.in(7)
+  bf3.io.wn := twid.io.wn(3)
+  bf3.io.out_en := io.out_en
+  io.out(6) := bf3.io.out0
+  io.out(7) := bf3.io.out1
 }
+
+class mainRF_redesign_FP extends Module {
+  val io = IO(new Bundle {
+    val in = Input(Vec(8, FixedPoint(32.W, 16.BP)))
+    val out = Output(Vec(8, FixedPoint(32.W, 16.BP)))
+    val load_en = Input(UInt(1.W))
+    val sel = Input(UInt(1.W))
+    val out_en = Input(UInt(1.W))
+    val from_ROM = Input(Vec(8, FixedPoint(32.W, 16.BP)))
+    val from_BF = Input(Vec(8, FixedPoint(32.W, 16.BP)))
+  })
+  
+  for (i <- 0 until 8){
+    io.out(i) := 0.F(32.W, 16.BP)
+  }
+  
+  val regx = RegInit(VecInit(Seq.fill(8)(0.F(32.W, 16.BP)))) //initialization of registers
+  
+  // inputs -- sel = 1 gets from BF
+  // inputs -- sel = 0 gets from "ROM"
+  when(io.load_en.asBool){
+    when(io.sel.asBool){
+      for(i <- 0 until 8){
+        regx(i) := io.from_BF(i)
+      }
+    }
+    .elsewhen(~(io.sel.asBool)){
+      for(i <- 0 until 8){
+        regx(i) := io.from_ROM(i)
+      }
+    }
+  }
+  
+  // just straight up tied the even and odds
+  // evens are 0-3 ties these straight to the 4 inputs of 4x32RF
+  // odds  are 4-7
+  when(io.out_en.asBool){
+    io.out(0) := regx(0)
+    io.out(1) := regx(2)
+    io.out(2) := regx(4)
+    io.out(3) := regx(6)
+    io.out(4) := regx(1)
+    io.out(5) := regx(3)
+    io.out(6) := regx(5)
+    io.out(7) := regx(7)
+  }
+}
+
+
+    
   
     
     
